@@ -4,6 +4,7 @@ import com.fileservice.reader.DataReader;
 import com.sun.nio.file.SensitivityWatchEventModifier;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.util.List;
@@ -34,31 +35,31 @@ public class FileWatcher {
 
         List<File> fileList = List.of(inputFiles);
 
-        dataReader.readFiles(fileList);
+        if (!fileList.isEmpty()) dataReader.readFiles(fileList);
+        else System.out.println("THERE IS NO FILES IN THE INPUT DIRECTORY");
     }
 
     private void watchFiles() throws IOException, InterruptedException {
-        WatchService watcher = pathToWatch.getFileSystem().newWatchService();
-        pathToWatch.register(
-                watcher,
-                new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY},
-                SensitivityWatchEventModifier.HIGH);
-
+        WatchService watcher = registerWatchService();
         WatchKey key;
-        System.out.println("before while");
         while ((key = watcher.take()) != null) {
-            System.out.println("inside while");
-            key.pollEvents().forEach(this::dealWithFiles);
+            key.pollEvents().forEach(event -> {
+                if (event.context().toString().endsWith(".dat")) {
+                    readExistentFiles();
+                } else {
+                    System.out.println("FILE FORMAT NOT ACCEPTED");
+                }
+            });
             key.reset();
         }
     }
 
-    private void dealWithFiles(WatchEvent event) {
-        if (event.context().toString().endsWith(".dat")) {
-            System.out.println("PROCESSING FILE");
-            readExistentFiles();
-        } else {
-            System.out.println("FILE FORMAT NOT ACCEPTED");
-        }
+    private WatchService registerWatchService() throws IOException {
+        WatchService watcher = pathToWatch.getFileSystem().newWatchService();
+        pathToWatch.register(
+                watcher,
+                new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE},
+                SensitivityWatchEventModifier.HIGH);
+        return watcher;
     }
 }

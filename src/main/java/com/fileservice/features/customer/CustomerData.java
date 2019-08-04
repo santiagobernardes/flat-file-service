@@ -1,10 +1,11 @@
 package com.fileservice.features.customer;
 
+import com.fileservice.features.DataOperator;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public class CustomerData {
+public class CustomerData implements DataOperator {
 
     private static List<String> customerLines;
     private static CustomerData customerData = new CustomerData();
@@ -17,11 +18,18 @@ public class CustomerData {
         return customerData;
     }
 
-    public static void addLine(String line) {
+    @Override
+    public void addLine(String line) {
         customerLines.add(line);
     }
 
-    public static List<String> getAllCustomers() {
+    @Override
+    public void clearData() {
+        customerLines.clear();
+    }
+
+    @Override
+    public List<String> getAll() {
         return customerLines;
     }
 }

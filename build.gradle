@@ -2,7 +2,7 @@ plugins {
     id 'java'
 }
 
-group 'com.test'
+group 'com.fileservice'
 version '1.0-SNAPSHOT'
 
 sourceCompatibility = 11
@@ -15,4 +15,5 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
     testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+    compile group: 'org.projectlombok', name: 'lombok', version: '1.18.8'
 }

@@ -5,14 +5,12 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
-
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class SaleModel {
-    private String saleId;
-    private List<ItemModel> items;
-    private String salesman;
-    private Double totalRevenue;
+@Builder
+public class ItemModel {
+    private Integer id;
+    private Integer quantity;
+    private Double price;
 }
