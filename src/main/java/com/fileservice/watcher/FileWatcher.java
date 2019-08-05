@@ -2,11 +2,13 @@ package com.fileservice.watcher;
 
 import com.fileservice.reader.DataReader;
 import com.sun.nio.file.SensitivityWatchEventModifier;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.*;
+import java.util.Arrays;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -16,27 +18,25 @@ public class FileWatcher {
     private static final Path pathToScan = Paths.get("./data/");
     private static final Path pathToWatch = Paths.get("./data/in");
 
-    private static DataReader dataReader = new DataReader();
+    private static final Logger LOGGER = LogManager.getLogger();
 
-    public void startWatchingFiles() {
+    private DataReader dataReader = new DataReader();
+
+    public void startWatchingFiles() throws IOException, InterruptedException {
         readExistentFiles();
-        try {
-            watchFiles();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+        watchFiles();
     }
 
     private void readExistentFiles() {
-        File[] inputFiles = List.of(
+        File[] inputFiles = Arrays.asList(
                 Optional.ofNullable(new File(pathToScan.getFileName().toString()).listFiles((dir, name) -> name.startsWith("in")))
                 .orElseThrow(NoSuchElementException::new))
                 .get(0).listFiles((dir, name) -> name.endsWith(".dat"));
 
-        List<File> fileList = List.of(inputFiles);
+        List<File> fileList = Arrays.asList(inputFiles);
 
         if (!fileList.isEmpty()) dataReader.readFiles(fileList);
-        else System.out.println("THERE IS NO FILES IN THE INPUT DIRECTORY");
+        else LOGGER.info("THERE ARE NO .dat FILES IN THE INPUT DIRECTORY");
     }
 
     private void watchFiles() throws IOException, InterruptedException {
@@ -47,7 +47,7 @@ public class FileWatcher {
                 if (event.context().toString().endsWith(".dat")) {
                     readExistentFiles();
                 } else {
-                    System.out.println("FILE FORMAT NOT ACCEPTED");
+                    LOGGER.error("FILE FORMAT NOT ACCEPTED");
                 }
             });
             key.reset();
@@ -58,7 +58,7 @@ public class FileWatcher {
         WatchService watcher = pathToWatch.getFileSystem().newWatchService();
         pathToWatch.register(
                 watcher,
-                new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY, StandardWatchEventKinds.ENTRY_DELETE},
+                new WatchEvent.Kind[]{StandardWatchEventKinds.ENTRY_MODIFY},
                 SensitivityWatchEventModifier.HIGH);
         return watcher;
     }

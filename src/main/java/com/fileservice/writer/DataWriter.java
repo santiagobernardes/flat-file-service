@@ -4,17 +4,24 @@ import com.fileservice.features.customer.CustomerService;
 import com.fileservice.features.sale.SaleService;
 import com.fileservice.features.salesman.SalesmanService;
 import lombok.AllArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @AllArgsConstructor
 public class DataWriter {
 
     private static final String outputPath = "./data/out/";
     private static final String outputFileName = "output_file.done.dat";
+
+    private static final Logger LOGGER = LogManager.getLogger();
 
     private CustomerService customerService;
     private SalesmanService salesmanService;
@@ -28,12 +35,13 @@ public class DataWriter {
 
     public List<String> writeOutput() {
 
-        List<String> outputData = List.of(
+        List<String> outputData = Stream.of(
                 customerService.amountOfCustomers(),
                 salesmanService.amountOfSalesmen(),
                 saleService.mostExpensiveSale(),
                 saleService.worstSalesmanEver()
-        );
+        )
+                .distinct().collect(Collectors.toList());
 
         createOutputFile(outputData);
         return outputData;
@@ -41,12 +49,10 @@ public class DataWriter {
 
     private void createOutputFile(List<String> outputData) {
         try {
-            System.out.println("_______________________________________________________________________");
-            outputData.forEach(l -> System.out.println(l));
-            System.out.println("_______________________________________________________________________");
             Files.write(Paths.get(outputPath.concat(outputFileName)), outputData, StandardCharsets.UTF_8);
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            outputData.forEach(LOGGER::debug);
+        } catch (IOException ex) {
+            LOGGER.error("An error happened while trying to write the file: ".concat(ex.getMessage()));
         } finally {
             clearData();
         }

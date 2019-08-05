@@ -3,6 +3,8 @@ package com.fileservice.reader;
 import com.fileservice.features.DataService;
 import com.fileservice.writer.DataWriter;
 import com.fileservice.parser.DataParser;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,6 +17,7 @@ public class DataReader {
 
     private DataWriter dataWriter;
     private DataService dataService;
+    private static final Logger LOGGER = LogManager.getLogger();
 
     public DataReader() {
         this.dataWriter = new DataWriter();
@@ -34,7 +37,7 @@ public class DataReader {
         try {
             return Files.readAllLines(file.toPath());
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("An error happened while trying to read the file: ".concat(e.getMessage()));
             return null;
         }
     }

@@ -13,11 +13,9 @@ import java.util.stream.Collectors;
 public class SaleService {
 
     private SaleData saleData;
-    private ItemService itemService;
 
     public SaleService() {
         saleData = SaleData.getInstance();
-        itemService = new ItemService();
     }
 
     public String worstSalesmanEver() {
@@ -37,7 +35,7 @@ public class SaleService {
 
             return "THE WORST SALESMAN EVER is ".concat(worstSalesman.getKey())
                     .concat(", who billed only R$ ").concat(String.valueOf(worstSalesman.getValue()));
-        } else return "";
+        } else return "THE SYSTEM WASN'T ABLE TO FIND ANY REGISTERED SALE IN THE INPUT DIRECTORY";
     }
 
     public String mostExpensiveSale() {
@@ -51,7 +49,7 @@ public class SaleService {
                 }).orElse("THE SYSTEM WASN'T ABLE TO FIND ANY REGISTERED SALE IN THE INPUT DIRECTORY");
     }
 
-    public List<SaleModel> getSalesList() {
+    private List<SaleModel> getSalesList() {
         return saleData.getAll().stream().distinct().map(this::createSaleModel).collect(Collectors.toList());
     }
 
@@ -66,9 +64,16 @@ public class SaleService {
         Triple<String, String, String> saleTriple = DataParser.getSplitedSale(sale);
 
         List<ItemModel> itemModelList = DataParser.getSplitedItems(saleTriple.getRight())
-                .stream().map(itemService::createItemModel).collect(Collectors.toList());
+                .stream().map(this::createItemModel).collect(Collectors.toList());
 
         return new SaleModel(saleTriple.getLeft(), itemModelList, saleTriple.getMiddle(), totalRevenue(itemModelList));
+    }
+
+    private ItemModel createItemModel(List<String> sale) {
+        return new ItemModel(
+                Integer.valueOf(sale.get(0)),
+                Integer.valueOf(sale.get(1)),
+                Double.valueOf(sale.get(2)));
     }
 
     private Double totalRevenue(List<ItemModel> items) {
