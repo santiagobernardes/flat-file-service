@@ -57,6 +57,6 @@ To solve the problem of Example Company, the Flat File Service follows some step
 
 1. Search for all .dat files located in the input directory (./data/in/) and read their contents, returning a list that contains all the lines of the files;
 2. As some of the lines could contain more than one information, the system breaks it all in different lines, separating each resource per line;
-3. The system then reads all the lines and stores the data according to the each resources' type;
+3. The system then reads all the lines and stores the data according to each resources' type;
 4. Each resource has it's own processor with the logic responsible for reading, analyzing and outputting the needed information;
 5. After processing all the data, the system then generates the output file in the output directory (./data/out/) with the summaryzed information.
